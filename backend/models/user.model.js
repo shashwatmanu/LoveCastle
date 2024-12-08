@@ -12,10 +12,16 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    profilePicture: {
-      type: String, // URL to the profile picture
-      default: 'default-profile-picture-url.png',
-    },
+    profilePictures: {
+        type: [
+          {
+            url: { type: String, required: true }, 
+            public_id: { type: String, required: true }, 
+          }
+        ],
+        validate: [arrayLimit, "Exceeds the limit of 3 images"], 
+        default: [],
+      },
     bio: {
       type: String,
       maxlength: 500,
@@ -36,30 +42,21 @@ const UserSchema = new mongoose.Schema(
         min: { type: Number, default: 800 },
         max: { type: Number, default: 3000 },
       },
-      gameMode: { type: [String], default: ['Casual'] },
+    //   gameMode: { type: [String], default: ['Casual'] },
       locationPreference: { type: Boolean, default: false },
     },
     location: {
       type: {
-        type: String, // GeoJSON type
-        enum: ['Point'], // Only allow 'Point'
+        type: String,
+        enum: ['Point'],
         required: true,
+        default: 'Point',
       },
       coordinates: {
-        type: [Number], // [longitude, latitude]
+        type: [Number],
         required: true,
+        default: [0, 0], // Default coordinates (longitude, latitude)
       },
-    },
-    notificationPreferences: {
-      email: { type: Boolean, default: true },
-      push: { type: Boolean, default: true },
-      sms: { type: Boolean, default: false },
-    },
-    socialLinks: {
-      facebook: { type: String, default: '' },
-      twitter: { type: String, default: '' },
-      linkedIn: { type: String, default: '' },
-      website: { type: String, default: '' },
     },
     status: {
       type: String,
@@ -68,10 +65,14 @@ const UserSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields
+    timestamps: true,
   }
 );
 
+function arrayLimit(val) {
+    return val.length <= 3; // Limits the array to a maximum of 3 items
+  }
+  
 // Add a 2dsphere index for location-based queries
 UserSchema.index({ location: '2dsphere' });
 
