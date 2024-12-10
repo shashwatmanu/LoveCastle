@@ -12,6 +12,9 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    name: {
+      type: String
+    },
     profilePictures: {
         type: [
           {
@@ -37,13 +40,30 @@ const UserSchema = new mongoose.Schema(
         min: { type: Number, default: 18 },
         max: { type: Number, default: 99 },
       },
-      genderPreference: { type: String, default: 'Any' },
+      gender: { type: String, enum: ["male", "female", "any"], default: "any" },
       chessSkillRange: {
-        min: { type: Number, default: 800 },
-        max: { type: Number, default: 3000 },
+        type: Number,
+        default: 200, // Default ±200 ELO range
       },
     //   gameMode: { type: [String], default: ['Casual'] },
       locationPreference: { type: Boolean, default: false },
+      maxDistance: {
+        type: Number, // Maximum distance in meters for filtering
+        default: 50000, // Default to 50 km
+      },
+    },
+    age: {
+      type: Number,
+    },
+    gender: {
+      type: String,
+      enum: ["male", "female", "other"], // Options for gender
+      required: false,
+    },
+    role: {
+      type: String,
+      enum: ["free", "premium"],
+      default: "free", 
     },
     location: {
       type: {
@@ -57,6 +77,11 @@ const UserSchema = new mongoose.Schema(
         required: true,
         default: [0, 0], // Default coordinates (longitude, latitude)
       },
+    },
+    swipedUsers: {
+      type: [mongoose.Schema.Types.ObjectId], // Array of user IDs
+      ref: "User", // Reference to the User collection
+      default: [], // Start with no swiped users 
     },
     status: {
       type: String,
