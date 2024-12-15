@@ -1,6 +1,12 @@
 import mongoose from "mongoose";
 
-// Define the User Schema
+
+const directChallengeSchema = new mongoose.Schema({
+  challenger: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  message: { type: String, default: "" }, // Optional message with the challenge
+  createdAt: { type: Date, default: Date.now },
+});
+
 const UserSchema = new mongoose.Schema(
   {
     username: {
@@ -88,6 +94,11 @@ const UserSchema = new mongoose.Schema(
       enum: ['Active', 'Inactive', 'Banned'],
       default: 'Active',
     },
+    dailyUnlocks: {
+      challenges: { type: Number, default: 0 }, // Challenges unlocked today
+      lastReset: { type: Date, default: null }, // Tracks when unlocks were last reset
+    },
+    directChallenges: [directChallengeSchema],
   },
   {
     timestamps: true,
