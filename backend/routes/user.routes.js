@@ -1,7 +1,9 @@
 import express from "express";
 import upload from "../helpers/multer.js";
 
-import { updateProfile, getProfiles, handleSwipe, getUserMatches, handleMatchResult, unlockChallenge, sendDirectChallenge, respondToChallenge, unmatchUsers, fetchChallenges } from "../controllers/user.controllers.js";
+import { updateProfile, getProfiles, handleSwipe, getUserMatches, handleMatchResult, unlockChallenge, sendDirectChallenge, respondToChallenge, unmatchUsers, fetchChallenges
+  ,getUserDetails
+ } from "../controllers/user.controllers.js";
 
 
 const router = express.Router();
@@ -13,6 +15,8 @@ router.put(
 );
 
 router.get("/fetch-profiles", getProfiles);
+
+router.get("/me", getUserDetails);
 
 router.post("/handle-swipe", handleSwipe);
 

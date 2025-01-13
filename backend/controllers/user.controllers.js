@@ -6,54 +6,124 @@ import mongoose from "mongoose";
 import {resetDailyUnlocks} from "../helpers/resetDailyUnlocks.js";
 import { calculateELO } from "../helpers/calculateElo.js";
 
-  export const updateProfile = async (req, res) => {
-    const userId = req.user._id; // Get the logged-in user's ID
-    const { bio, preferences, latitude, longitude, age, name, gender } = req.body; // Extract fields from the request
-    const files = req.files;
+//   export const updateProfile = async (req, res) => {
+//     const userId = req.user._id; // Get the logged-in user's ID
+//     const { bio, preferences, latitude, longitude, age, name, gender } = req.body; // Extract fields from the request
+//     const files = req.files;
+// //     console.log("Request body:", req.body);
+// // console.log("Uploaded files:", req.files);
 
-    try {
-      // Process uploaded files to get URLs and public_ids from Cloudinary
-      const uploadedPictures = files.map((file) => ({
-        url: file.path, // Cloudinary URL of the uploaded image
-        public_id: file.filename, // Cloudinary public_id of the image
-      }));
 
-      // Update user profile in the database
-      const user = await User.findByIdAndUpdate(
-        userId,
-        {
-          $set: {
-            bio,
-            preferences: preferences ? JSON.parse(preferences) : undefined,
-            profilePictures: uploadedPictures.length > 0 ? uploadedPictures : undefined,
-            location:
-              latitude && longitude
-                ? {
-                    type: "Point",
-                    coordinates: [parseFloat(longitude), parseFloat(latitude)],
-                  }
-                : undefined,
-            age,
-            name,
-            gender
-          },
-        },
-        { new: true } // Return the updated user
-      );
+//     try {
+//       // Process uploaded files to get URLs and public_ids from Cloudinary
+//       const uploadedPictures = files.map((file) => ({
+//         url: file.path, // Cloudinary URL of the uploaded image
+//         public_id: file.filename, // Cloudinary public_id of the image
+//       }));
 
-      res.status(200).json({ message: "Profile updated successfully", user });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to update profile", details: error.message });
+//       // Update user profile in the database
+//       const user = await User.findByIdAndUpdate(
+//         userId,
+//         {
+//           $set: {
+//             bio,
+//             preferences: preferences ? JSON.parse(preferences) : undefined,
+//             profilePictures: uploadedPictures.length > 0 ? uploadedPictures : undefined,
+//             location:
+//               latitude && longitude
+//                 ? {
+//                     type: "Point",
+//                     coordinates: [parseFloat(longitude), parseFloat(latitude)],
+//                   }
+//                 : undefined,
+//             age,
+//             name,
+//             gender
+//           },
+//         },
+//         { new: true } // Return the updated user
+//       );
+
+//       res.status(200).json({ message: "Profile updated successfully", user });
+//     } catch (error) {
+//       res.status(500).json({ error: "Failed to update profile", details: error.message });
+//     }
+//   }
+
+export const updateProfile = async (req, res) => {
+  const userId = req.user._id; // Get the logged-in user's ID
+  const { bio, preferences, latitude, longitude, age, name, gender } = req.body; // Extract fields from the request
+  const files = req.files;
+
+  try {
+    // Fetch the existing user profile
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
+
+    // Process uploaded files to get URLs and public_ids from Cloudinary
+    const uploadedPictures = files.map((file) => ({
+      url: file.path, // Cloudinary URL of the uploaded image
+      public_id: file.filename, // Cloudinary public_id of the image
+    }));
+
+    // Combine existing profile pictures with the newly uploaded ones
+    const updatedProfilePictures = [...(user.profilePictures || []), ...uploadedPictures];
+
+    // Update user profile in the database
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        $set: {
+          bio,
+          preferences: preferences ? JSON.parse(preferences) : undefined,
+          profilePictures: updatedProfilePictures.length > 0 ? updatedProfilePictures : user.profilePictures,
+          location:
+            latitude && longitude
+              ? {
+                  type: "Point",
+                  coordinates: [parseFloat(longitude), parseFloat(latitude)],
+                }
+              : undefined,
+          age,
+          name,
+          gender,
+        },
+      },
+      { new: true } // Return the updated user
+    );
+
+    res.status(200).json({ message: "Profile updated successfully", user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update profile", details: error.message });
   }
+};
+
+
+  export const getUserDetails = async (req, res) => {
+    const userId = req.user._id; // Extract user ID from the authenticated request
+    try {
+      const user = await User.findById(userId).select("-password"); // Exclude password
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      res.status(200).json(user);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch user details", details: error.message });
+    }
+  };
+  
 
   export const getProfiles = async (req, res) => {
     const userId = req.user._id;
+    // console.log(userId)
   
     try {
       // Fetch the logged-in user
       const currentUser = await User.findById(userId);
-  
+      // console.log(currentUser)
       if (!currentUser) {
         return res.status(404).json({ error: "User not found" });
       }
@@ -106,7 +176,8 @@ import { calculateELO } from "../helpers/calculateElo.js";
           chessStats: 1,
           age: 1,
           gender: 1,
-          distance: 1, // Include the calculated distance
+          distance: 1,
+          profilePictures: 1 // Include the calculated distance
         },
       });
   
