@@ -193,6 +193,7 @@ export const updateProfile = async (req, res) => {
   export const handleSwipe = async (req, res) => {
     const { targetUserId, direction } = req.body; // `direction` can be 'left' or 'right'
     const userId = req.user._id;
+    console.log(targetUserId, direction);
   
     try {
       if (!['left', 'right'].includes(direction)) {
@@ -253,6 +254,22 @@ export const updateProfile = async (req, res) => {
     }
   };
   
+  // export const getUserMatches = async (req, res) => {
+  //   const userId = req.user._id;
+  
+  //   try {
+  //     const matches = await Match.find({
+  //       $or: [{ user1: userId }, { user2: userId }],
+  //     })
+  //       .populate('user1', '-password -swipedUsers -location')
+  //       .populate('user2', '-password -swipedUsers');
+  
+  //     res.status(200).json({ matches });
+  //   } catch (error) {
+  //     res.status(500).json({ error: "Failed to fetch matches.", details: error.message });
+  //   }
+  // };
+
   export const getUserMatches = async (req, res) => {
     const userId = req.user._id;
   
@@ -260,14 +277,42 @@ export const updateProfile = async (req, res) => {
       const matches = await Match.find({
         $or: [{ user1: userId }, { user2: userId }],
       })
-        .populate('user1', '-password -swipedUsers')
-        .populate('user2', '-password -swipedUsers');
+        .populate('user1', '-password -swipedUsers -location')
+        .populate('user2', '-password -swipedUsers -location');
   
-      res.status(200).json({ matches });
+      // Structure the response to include match details and other user's details
+      const matchDetails = matches.map((match) => {
+        const otherUser =
+          match.user1._id.toString() === userId.toString()
+            ? match.user2
+            : match.user1;
+  
+        return {
+          matchId: match._id, // Match ID
+          games: match.games, // Array of games played
+          totalGamesPlayed: match.totalGamesPlayed, // Total games played
+          user1Wins: match.user1Wins, // Number of wins by user1
+          user2Wins: match.user2Wins, // Number of wins by user2
+          icebreakerGameStatus: match.icebreakerGameStatus, // Icebreaker game status
+          createdAt: match.createdAt, // Match creation time
+          user1Name: match.user1.name, // User1 name
+          user2Name: match.user2.name, // User2 name
+          otherUser: {
+            _id: otherUser._id,
+            name: otherUser.name,
+            profilePictures: otherUser.profilePictures, // Example fields to return
+            chessELO: otherUser.chessStats.rating,
+          },
+        };
+      });
+  
+      res.status(200).json({ matches: matchDetails });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch matches.", details: error.message });
     }
   };
+  
+  
   
   export const handleMatchResult = async (req, res) => {
     const { matchId, winnerId, moves } = req.body; // Winner ID provided; null for a draw

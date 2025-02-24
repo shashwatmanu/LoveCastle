@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import TinderCard from 'react-tinder-card';
-import { fetchProfiles } from '../services/api';
+import { fetchProfiles, swipeUser } from '../services/api';
 import ScoreIcon from '@mui/icons-material/Score';
 import Navbar from '../components/navbar';
 import PersonIcon from '@mui/icons-material/Person';
@@ -29,6 +29,7 @@ const SwipePage = () => {
 
   const handleSwipe = (direction, profile) => {
     console.log(`Swiped ${direction} on ${profile.name}`);
+    swipeUser(profile._id, direction);
     // Add logic to handle 'like' or 'reject' based on the direction
   };
 
@@ -55,8 +56,8 @@ const SwipePage = () => {
   return (
     <>
     
-    <div style={{width:'100vw', display:'flex', justifyContent:'center', height:'100%'}}>
-    <Navbar/>
+    <div style={{width:'100vw', display:'flex', justifyContent:'center', alignItems:'center', height:'100vh'}}>
+    {/* <Navbar/> */}
       {/* <h1>Swipe Profiles</h1> */}
       <div className="cardContainer">
         {profiles.map((profile) => (

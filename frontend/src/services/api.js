@@ -4,7 +4,7 @@ import axios from 'axios';
 const API_BASE_URL = 'http://localhost:8080';
 
 // Create an Axios instance
-const api = axios.create({
+export const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
@@ -90,3 +90,46 @@ export const upgradeToPremium = async (userId) => {
 };
 
 // Add more functions for other endpoints as needed
+// Function to fetch user matches
+export const fetchUserMatches = async () => {
+  try {
+    const token = localStorage.getItem('authToken');
+    if (!token) throw new Error("User not authenticated.");
+
+    const response = await api.get('/user/matches', {
+      headers: {
+        Authorization: token,
+      },
+    });
+
+    return response.data.matches;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
+// Function to handle swipes
+export const swipeUser = async (targetUserId, direction) => {
+  try {
+    const token = localStorage.getItem('authToken');
+    if (!token) throw new Error("User not authenticated.");
+
+    if (!['left', 'right'].includes(direction)) {
+      throw new Error("Invalid swipe direction.");
+    }
+
+    const response = await api.post(
+      '/user/handle-swipe',
+      { targetUserId, direction },
+      {
+        headers: {
+          Authorization: token,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};

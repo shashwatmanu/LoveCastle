@@ -12,10 +12,10 @@ const navbar = () => {
   const navigate = useNavigate();
   return (
     <>
-    <div style={{display:'flex', justifyContent:'space-between', position:'fixed', top:'0px', width:'100vw', padding:'2rem', alignItems:'center'}}>
+    <div style={{display:'flex', justifyContent:'space-between', position:'absolute', top:'0px', width:'100vw', padding:'2rem', alignItems:'center'}}>
     <PersonIcon fontSize='large' color='warning' onClick={()=> navigate('/me')}/>
-<img src={logo} alt="" style={{height:'50px'}}/>
-    <ChatBubbleIcon fontSize='large' color='warning'/>
+<img src={logo} alt="" style={{height:'50px'}} onClick={()=> navigate('/')}/>
+    <ChatBubbleIcon fontSize='large' color='warning' onClick={()=> navigate('/messages')}/>
     
     </div>
     </>

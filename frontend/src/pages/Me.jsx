@@ -129,7 +129,7 @@ const UpdateProfile = () => {
 
   return (
     <>
-      <Navbar />
+      {/* <Navbar /> */}
     
     <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
       {/* Use your original Navbar component */}
@@ -252,7 +252,8 @@ const UpdateProfile = () => {
               {/* Age Range */}
               <TextField
                 label="Age Range"
-                value={user.preferences?.ageRange?.min || 18}
+                type="number"
+                value={user.preferences?.ageRange?.min}
                 onChange={(e) =>
                   setUser((prev) => ({
                     ...prev,

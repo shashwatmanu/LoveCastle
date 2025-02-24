@@ -9,6 +9,10 @@ import UpdateProfile from './pages/UpdateProfile';
 import Me from './pages/Me';
 import { CssBaseline } from '@mui/material/';
 import { GlobalStyles } from '@mui/material';
+import Navbar from './components/navbar';
+import Messages from './pages/Messages';
+import Chat from './pages/Chat';
+import Game from "./pages/Game";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -67,7 +71,11 @@ function App() {
           path="/swipe"
           element={
             <PrivateRoute isLoggedIn={isLoggedIn}>
+              
+              <Navbar/>
               <Main />
+              
+             
               
             </PrivateRoute>
           }
@@ -78,10 +86,48 @@ function App() {
           element={
             <PrivateRoute isLoggedIn={isLoggedIn}>
              {/* <UpdateProfile /> */}
+             <Navbar/>
              <Me/>
               </PrivateRoute>
           }
         />
+
+<Route
+          path="/messages"
+          element={
+            <PrivateRoute isLoggedIn={isLoggedIn}>
+             {/* <UpdateProfile /> */}
+             <Navbar/>
+             
+             <Messages/>
+              </PrivateRoute>
+          }
+        />
+
+<Route
+          path="/chat"
+          element={
+            <PrivateRoute isLoggedIn={isLoggedIn}>
+             {/* <UpdateProfile /> */}
+             {/* <Navbar/> */}
+             
+             <Chat/>
+              </PrivateRoute>
+          }
+        />
+
+<Route
+          path="/game"
+          element={
+            <PrivateRoute isLoggedIn={isLoggedIn}>
+             {/* <UpdateProfile /> */}
+             {/* <Navbar/> */}
+             
+             <Game/>
+              </PrivateRoute>
+          }
+        />
+
       </Routes>
     </BrowserRouter>
     </>

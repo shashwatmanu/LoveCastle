@@ -117,8 +117,8 @@ const UpdateProfile = () => {
             value={genderPreference}
             onChange={(e) => setGenderPreference(e.target.value)}
           >
-            <MenuItem value="male">Male</MenuItem>
-            <MenuItem value="female">Female</MenuItem>
+            <MenuItem value="Male">Male</MenuItem>
+            <MenuItem value="Female">OBJECT</MenuItem>
             <MenuItem value="both">Both</MenuItem>
           </Select>
         </FormControl>
